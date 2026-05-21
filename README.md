@@ -11,7 +11,7 @@ A drop-in `.devcontainer/` template for projects that want to give Claude Code a
 | `devcontainer.json` | Wires the dev container to compose. Configures features (`common-utils`, `node`, `java`, `claude`). Runs `init-firewall.sh` on every container start. |
 | `init-firewall.sh` | Sets the container's egress firewall to a deny-by-default policy with an allowlist. Also installs localhost → service-name DNAT rules so the dev container can talk to sibling compose services via `localhost:<port>`. |
 | `allowed-domains.conf` | Plain-text list of hostnames that the firewall should resolve and allow. |
-| `start.sh` | Bootstraps the dev container: installs `@devcontainers/cli` if missing, builds + starts the stack, then launches Claude inside. |
+| `start.sh` | Bootstraps the dev container: installs `@devcontainers/cli` locally into the project's `node_modules/` if missing, builds + starts the stack, then launches Claude inside. |
 | `attach.sh` | Fast path that skips the build and attaches Claude to an already-running dev container. |
 
 ## Why use this
@@ -23,12 +23,16 @@ A drop-in `.devcontainer/` template for projects that want to give Claude Code a
 ## Prerequisites
 
 - Docker (Docker Desktop, OrbStack, or anything that provides a working `docker compose` and supports the `sysctls` directive).
-- Node.js — only because `start.sh` will `npm install -g @devcontainers/cli` if the CLI isn't already on `PATH`. If you install the CLI another way, Node is not required.
+- Node.js — only because `start.sh` will run `npm install @devcontainers/cli` into the project's `node_modules/` if the local binary isn't already present. No global install, no `sudo`. If you provide the CLI another way, Node is not required.
 - An `ANTHROPIC_API_KEY` (or a Claude login session) on first run.
 
 ## Quick start in an existing project
 
-1. Copy this `.devcontainer/` directory to the root of your project.
+1. From your project root, run the installer to pull the latest `.devcontainer/` from this repo:
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/MairoldCB/devcontainer-setup/main/install.sh | bash
+   ```
+   (Or copy the `.devcontainer/` directory manually if you'd rather pin a specific version.)
 2. Open `.devcontainer/devcontainer.json` and set:
    - `"name"` — anything; shows up in IDE UIs.
    - `forwardPorts` + `portsAttributes` — list the host ports your app needs IDE-side forwarding for (e.g. backend on 4040, frontend on 8080).
@@ -60,6 +64,8 @@ A drop-in `.devcontainer/` template for projects that want to give Claude Code a
 6. Run `./.devcontainer/start.sh` from the project root.
 
 On subsequent sessions, run `./.devcontainer/attach.sh` instead — it skips the rebuild and attaches Claude in a few seconds.
+
+The first run creates `node_modules/`, `package.json`, and `package-lock.json` in your project root (from the local `@devcontainers/cli` install). Add them to your `.gitignore` if you don't want them tracked.
 
 ## Running parallel sessions with worktrees
 
