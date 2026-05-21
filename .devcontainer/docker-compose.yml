@@ -13,15 +13,4 @@ services:
       - NET_RAW
     volumes:
       - ..:/workspace:cached
-      - claude-config:/home/dev/.claude
-      - claude-json:/home/dev/.claude-json-dir
-      - claude-history:/commandhistory
-      - m2-cache:/home/dev/.m2
     command: sleep infinity
-
-volumes:
-  claude-config:
-  claude-json:
-  claude-history:
-  m2-cache:
-  data:

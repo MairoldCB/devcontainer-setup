@@ -33,14 +33,8 @@ RUN git config --global core.checkStat minimal && \
 # Copy and set up firewall script
 COPY init-firewall.sh /usr/local/bin/
 COPY allowed-domains.conf /usr/local/bin/
-USER root
 RUN chmod +x /usr/local/bin/init-firewall.sh && \
   echo "dev ALL=(root) NOPASSWD: /usr/local/bin/init-firewall.sh" > /etc/sudoers.d/init-firewall && \
   chmod 0440 /etc/sudoers.d/init-firewall
-
-RUN mkdir -p /home/dev/.claude-json-dir && \
-    chown dev:dev /home/dev/.claude-json-dir && \
-    ln -s /home/dev/.claude-json-dir/.claude.json /home/dev/.claude.json && \
-    chown -h dev:dev /home/dev/.claude.json
 
 WORKDIR /workspace
