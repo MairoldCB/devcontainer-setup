@@ -16,15 +16,15 @@
   },
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {},
-    "ghcr.io/devcontainers/features/node" : {
-      "version": "lts"
-    },
-    "ghcr.io/devcontainers/features/java": {
-      "version": 25,
-      "installGradle": true,
-      "jdkDistro": "open",
-      "gradleVersion": "9.1.0"
-    },
+//    "ghcr.io/devcontainers/features/node" : {
+//      "version": "lts"
+//    },
+//    "ghcr.io/devcontainers/features/java": {
+//      "version": 25,
+//      "installGradle": true,
+//      "jdkDistro": "open",
+//      "gradleVersion": "9.1.0"
+//    },
     "ghcr.io/aivar-codeborne/devcontainer-features/claude:1.0.7": {}
   },
   "overrideFeatureInstallOrder": [
