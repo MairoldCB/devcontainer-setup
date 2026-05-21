@@ -1,6 +1,6 @@
 # devcontainer-setup
 
-A drop-in `.devcontainer/` template for projects that want to give [Claude Code](https://claude.com/claude-code) a sandboxed development environment with a strict outbound firewall.
+A drop-in `.devcontainer/` template for projects that want to give Claude Code a sandboxed development environment with a strict outbound firewall.
 
 ## What's in the box
 
@@ -97,35 +97,3 @@ Notes:
 
 Because the allowlist resolves at boot, hostnames that rotate IPs frequently (CDNs especially) may break — refresh by restarting the container.
 
-### `route_localnet` sysctl
-
-The `docker-compose.yml` sets `net.ipv4.conf.all.route_localnet=1`. This is required for the localhost-DNAT trick to work — Linux ignores NAT rules on `127.0.0.0/8` traffic by default. The sysctl is "namespaced", so it only affects this container's network namespace.
-
-## Customization tips
-
-- **Different base image.** Change the `FROM` line in `Dockerfile`. If you move off Debian, also update the `apt-get` line.
-- **Don't want the firewall.** Remove the `postStartCommand` from `devcontainer.json` and drop `iptables`/`ipset`/`aggregate` from the `Dockerfile` apt list. Note that you also lose the localhost-DNAT feature.
-- **Need root inside the container.** The `dev` user has passwordless sudo only for `/usr/local/bin/init-firewall.sh`. For broader sudo, change the `sudoers.d` rule in the `Dockerfile`.
-- **Persistent shell history / Claude state.** Already wired via named volumes `claude-config`, `claude-json`, `claude-history`.
-
-## JetBrains Gateway caveat
-
-Gateway's devcontainer engine does **not** currently honor `overrideFeatureInstallOrder` ([IDEA-334532](https://youtrack.jetbrains.com/issue/IDEA-334532)). If you open this devcontainer via Gateway directly, you'll see feature install failures because features run in a non-deterministic order. Workarounds:
-
-- Run `start.sh` first (uses the official `@devcontainers/cli`, which respects ordering), then attach Gateway to the **running container** instead of letting it build.
-- Or, make your features self-bootstrapping — have each `install.sh` install its own apt prerequisites — so order doesn't matter.
-
-## Troubleshooting
-
-| Symptom | Likely cause |
-| --- | --- |
-| `claude: command not found` after start | The claude feature's `~/.local/bin` is on `PATH` only via `remoteEnv` in `devcontainer.json`. Make sure that block is intact. |
-| `Connection timed out` to `localhost:<port>` from inside the container | The `PORT_FORWARDS` entry for that port is missing, or the `route_localnet` sysctl didn't apply. Check `docker-compose.yml` and re-run `start.sh`. |
-| `Firewall verification failed - was able to reach https://example.com` | A previous run's iptables rules weren't flushed properly. Restart the dev container. |
-| Feature install fails with `error setting certificate file: /etc/ssl/certs/ca-certificates.crt` | `ca-certificates` is missing from the base image — keep it in the Dockerfile apt list. |
-| Feature install fails with `su: failed to execute /bin/zsh` | `zsh` is missing — keep it in the apt list (the `dev` user is created with zsh as its login shell). |
-| Feature install fails with `cannot create /etc/sudoers.d/...` | `sudo` is missing — keep it in the apt list. |
-
-## License
-
-Use it however you like. Attribution appreciated but not required.
