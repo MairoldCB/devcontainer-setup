@@ -1,0 +1,34 @@
+name: project-name
+
+services:
+  devcontainer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    sysctls:
+      # Required so init-firewall.sh can DNAT localhost:5433/5434/1883 to the service containers.
+      - net.ipv4.conf.all.route_localnet=1
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    volumes:
+      - ..:/workspace:cached
+      - claude-config:/home/dev/.claude
+      - claude-json:/home/dev/.claude-json-dir
+      - claude-history:/commandhistory
+      - m2-cache:/home/dev/.m2
+    depends_on:
+      db:
+        condition: service_healthy
+      unit-test-db:
+        condition: service_healthy
+      mqtt:
+        condition: service_healthy
+    command: sleep infinity
+
+volumes:
+  claude-config:
+  claude-json:
+  claude-history:
+  m2-cache:
+  data:

@@ -1,0 +1,34 @@
+{
+  "name": "project-name",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "devcontainer",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+  "postStartCommand": "sudo /usr/local/bin/init-firewall.sh",
+//  "forwardPorts": [4040, 8080],
+  "portsAttributes": {
+//    For example:
+//    "4040": { "label": "Backend (Micronaut)", "onAutoForward": "notify" },
+//    "8080": { "label": "Frontend (Vite)", "onAutoForward": "openBrowser" }
+  },
+  "remoteEnv": {
+//    your project env variables here
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {},
+    "ghcr.io/devcontainers/features/node" : {
+      "version": "lts"
+    },
+    "ghcr.io/devcontainers/features/java": {
+      "version": 25,
+      "installGradle": true,
+      "jdkDistro": "open",
+      "gradleVersion": "9.1.0"
+    },
+    "ghcr.io/aivar-codeborne/devcontainer-features/claude:1.0.7": {}
+  },
+  "overrideFeatureInstallOrder": [
+    "ghcr.io/devcontainers/features/common-utils:2"
+  ],
+  "remoteUser": "dev"
+}
