@@ -61,6 +61,27 @@ A drop-in `.devcontainer/` template for projects that want to give [Claude Code]
 
 On subsequent sessions, run `./.devcontainer/attach.sh` instead — it skips the rebuild and attaches Claude in a few seconds.
 
+## Running parallel sessions with worktrees
+
+Both `start.sh` and `attach.sh` accept an optional first argument that's forwarded as Claude's [`--worktree`](https://code.claude.com/docs/en/worktrees) flag. Each named worktree is an isolated git working directory + branch (`worktree-<name>`) created under `.claude/worktrees/<name>/`, so two parallel Claude sessions can work on different things without stepping on each other's files.
+
+```bash
+# First session
+./.devcontainer/start.sh feature-auth      # creates worktree-feature-auth
+
+# Second session, in another terminal
+./.devcontainer/attach.sh bugfix-123       # creates worktree-bugfix-123
+```
+
+Without an argument, both scripts launch Claude in the main workspace as before.
+
+Notes:
+
+- The first time you use `--worktree` in a project, Claude needs the workspace trust dialog accepted. Run `./.devcontainer/attach.sh` once without an argument first to clear it.
+- Add `.claude/worktrees/` to your project's `.gitignore` so worktree directories don't appear as untracked files.
+- If your project has gitignored files that worktrees still need (`.env`, `.env.local`, etc.), list them in a `.worktreeinclude` file at the project root — Claude will copy them into each new worktree.
+- See the [Claude Code worktree docs](https://code.claude.com/docs/en/worktrees) for cleanup behavior, PR-based worktrees (`./.devcontainer/start.sh "#1234"`), and subagent isolation.
+
 ## How the firewall works
 
 `init-firewall.sh` runs on every container start via `postStartCommand`. It:
