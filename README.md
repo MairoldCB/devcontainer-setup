@@ -36,7 +36,17 @@ A drop-in `.devcontainer/` template for projects that want to give [Claude Code]
    - `features` — keep `claude`; add/remove language features as needed. Stack-agnostic features in this template: `common-utils`, `node`, `java`. Browse the official catalog at [containers.dev/features](https://containers.dev/features) to pull in additional dependencies (Python, Go, Rust, AWS CLI, Docker-in-Docker, etc.) — copy the `ghcr.io/...` reference into the `features` block. The `overrideFeatureInstallOrder` block makes sure `common-utils` runs first so things like `sudo` and `ca-certificates` exist before later features try to use them.
 3. Open `.devcontainer/docker-compose.yml` and:
    - Set the top-level `name:` to your project name.
-   - Add your project's services (Postgres, Redis, MQTT, etc.) alongside the `devcontainer` service.
+   - Add your project's services (Postgres, Redis, MQTT, etc.) alongside the `devcontainer` service. For anything you add, give it a `healthcheck:` block and add a corresponding entry to the `devcontainer` service's `depends_on:` so the dev container only starts once your dependencies are ready:
+     ```yaml
+     devcontainer:
+       # ...
+       depends_on:
+         db:
+           condition: service_healthy
+         mqtt:
+           condition: service_healthy
+     ```
+     Without this, `init-firewall.sh`'s `PORT_FORWARDS` step can't resolve service hostnames yet, and your app may race the DB on startup.
    - Mount any cache volumes your toolchain needs (Maven `~/.m2`, Gradle `~/.gradle`, npm cache).
 4. Open `.devcontainer/allowed-domains.conf` and append the hostnames your build/runtime needs (your APIs, registries, cloud providers, etc.). One per line; lines starting with `#` are comments.
 5. If your app expects to reach sibling compose services on `localhost:<port>` (same as on the host), add them to the `PORT_FORWARDS` array in `init-firewall.sh`:
