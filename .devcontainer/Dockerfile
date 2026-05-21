@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     iptables \
     ipset \
     aggregate \
+    dnsutils \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Create the `dev` user (with its own home + sudo group membership).
